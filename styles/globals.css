@@ -4,6 +4,7 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  height: 100%;
 }
 
 a {
@@ -13,4 +14,21 @@ a {
 
 * {
   box-sizing: border-box;
+}
+
+#__next {
+  height: 100vh;
+}
+
+@media only screen and (min-width: 780px) {
+  #__next {
+    display: flex;
+    height: 100%;
+  }
+}
+
+.class-heading {
+  text-align: center;
+  height: 95px;
+  margin-bottom: 0;
 }
