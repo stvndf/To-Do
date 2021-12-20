@@ -7,12 +7,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const taskId = Number(req.query.id);
-  const { newIsComplete } = req.body;
-  const result = await prisma.task.update({
-    where: { id: taskId },
-    data: { isComplete: newIsComplete },
-  });
+  if (req.method === "GET") {
+    const tasks = await prisma.task.findMany({ orderBy: { id: "asc" } });
 
-  res.status(201).json(result);
+    res.status(200).send(tasks);
+  } else {
+    throw new Error("HTTP method unsupported in this route");
+  }
 }

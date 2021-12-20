@@ -1,34 +1,9 @@
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  height: 100%;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-#__next {
-  height: 100vh;
-}
-
-@media only screen and (min-width: 780px) {
-  #__next {
-    display: flex;
-    height: 100%;
+@layer components {
+  .btn-icon {
+    @apply text-secondary hover:text-primary
   }
-}
-
-.class-heading {
-  text-align: center;
-  height: 95px;
-  margin-bottom: 0;
 }

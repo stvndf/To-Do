@@ -8,13 +8,11 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method === "DELETE") {
-      const taskId = Number(req.query.id);
-      const result = await prisma.task.delete({where: {id: taskId}})
+    const taskId = Number(req.query.id);
+    await prisma.task.delete({ where: { id: taskId } });
 
-
-  res.status(204).json(result);
+    res.status(204).send(null);
   } else {
-    throw new Error("HTTP method unsupported in this route")
+    throw new Error("HTTP method unsupported in this route");
   }
-
 }

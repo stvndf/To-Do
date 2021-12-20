@@ -1,4 +1,3 @@
-import styles from "../styles/Tasks.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSquare,
@@ -6,91 +5,82 @@ import {
   faPenToSquare,
   faTrashCan,
 } from "@fortawesome/free-regular-svg-icons";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import useSWR, { useSWRConfig } from "swr";
-
-interface Props {}
-interface Data {
-  id: number;
-  content: string;
-  isComplete: boolean;
-}
+import Background from "./Background";
+import useDataFetcher from "../hooks/useDataFetcher";
+import { useRef, useState } from "react";
+import Modal from "./Modal";
 
 export default function Tasks() {
-  // const { mutate } = useSWRConfig();
-  const { data, error, mutate } = useSWR<Data[]>(
-    "/api/tasks",
-    (...args: Parameters<typeof fetch>) =>
-      fetch(...args).then((res) => res.json())
-  );
+  const { data, error, adjustIsComplete, deleteTask } = useDataFetcher();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const taskToEdit = useRef<{
+    id: undefined | number;
+    content: undefined | string;
+  }>({ id: undefined, content: undefined });
 
-  const setIsComplete = async (
-    taskId: number,
-    newIsComplete: boolean
-  ) => {
-    const newData: Data[] = data!.map((task) =>
-      task.id === taskId ? { ...task, isComplete: newIsComplete } : task
+  if (error || !data)
+    return (
+      <div className="flex justify-center self-center flex-grow w-[90%] max-w-5xl pt-5">
+        {error ? (
+          <Background dataStatus="error" />
+        ) : (
+          !data && <Background dataStatus="unavailable" />
+        )}
+      </div>
     );
 
-    mutate(newData, false);
-
-    await fetch(`/api/tasks/${taskId}/setIsComplete`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ newIsComplete }),
-    });
-
-    mutate(newData)
-  };
-
-  const deleteTask = async (taskId: number) => {
-    const newData = data!.filter(task => task.id !== taskId)
-
-    mutate(newData, false);
-
-    await fetch(`/api/tasks/${taskId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    mutate(newData)
-  };
-
-  if (error) return <div>failed to load</div>;
-  if (!data) return <FontAwesomeIcon icon={faSpinner} spin />;
-
   return (
-    <div className={styles.container}>
-      {data.map((task) => (
-        <div className={styles.task} key={task.id}>
+    <div className="flex flex-col items-center self-center flex-grow w-[90%] max-w-5xl pt-5">
+      <Background dataStatus="available" />
+      {isModalOpen && (
+        <Modal
+          setIsModalOpen={setIsModalOpen}
+          taskId={taskToEdit.current.id!}
+          taskContent={taskToEdit.current.content!}
+        />
+      )}
+
+      {data!.map((task) => (
+        <div
+          className="z-10 flex items-center w-full min-h-[4rem] px-4 mb-5 bg-white rounded-lg"
+          key={task.id}
+        >
           {task.isComplete ? (
             <div
-              className={styles.status}
-              onClick={() => setIsComplete(task.id, false)}
+              className="cursor-pointer text-secondary"
+              onClick={() => adjustIsComplete(task.id, false)}
             >
               <FontAwesomeIcon icon={faSquareCheck} size="2x" />
             </div>
           ) : (
             <div
-              className={styles.status}
-              onClick={() => setIsComplete(task.id, true)}
+              className="cursor-pointer text-primary"
+              onClick={() => adjustIsComplete(task.id, true)}
             >
               <FontAwesomeIcon icon={faSquare} size="2x" />
             </div>
           )}
-          <div className={styles.text}>{task.content}</div>
-          <button className={styles["edit-button"]}>
-            <FontAwesomeIcon icon={faPenToSquare} size="1x" />
+          <div
+            className={`flex-1 ml-3 my-1 ${
+              task.isComplete ? "text-secondary line-through" : "text-primary"
+            }`}
+          >
+            {task.content}
+          </div>
+          <button
+            className="ml-3 w-7 h-7 btn-icon"
+            onClick={() => {
+              taskToEdit.current = { id: task.id, content: task.content };
+              setIsModalOpen(true);
+            }}
+          >
+            <FontAwesomeIcon icon={faPenToSquare} />
           </button>
           <button
-            className={styles["delete-button"]}
+            className="ml-3 w-7 h-7 btn-icon"
             onClick={() => deleteTask(task.id)}
           >
-            <FontAwesomeIcon icon={faTrashCan} size="1x" />
+            <FontAwesomeIcon icon={faTrashCan} />
           </button>
         </div>
       ))}
