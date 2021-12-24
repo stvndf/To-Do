@@ -87,7 +87,7 @@ export default function useDataFetcher() {
   return {
     data,
     error,
-    adjustIsComplete: adjustIsComplete,
+    adjustIsComplete,
     deleteTask,
     addTask,
     editTask,
